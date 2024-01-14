@@ -1,9 +1,10 @@
 import React from 'react';
+import Feed from './component/Feed';
 
 const App = () => {
   return (
     <div>
-      <h1>Hello, React!</h1>
+      <Feed/>
     </div>
   );
 };

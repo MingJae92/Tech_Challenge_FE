@@ -2,7 +2,9 @@ import React from 'react'
 
 function Feed() {
   return (
-    <div>Feed</div>
+    <div>
+        <h1>Feed</h1>
+    </div>
   )
 }
 
