@@ -1,13 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
-  const root = (ReactDOM as any).createRoot(rootElement); // Type assertion
-  
+  const root = createRoot(rootElement);
   root.render(
     <React.StrictMode>
       <App />

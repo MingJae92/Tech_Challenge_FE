@@ -1,5 +1,5 @@
 import React from 'react';
-import Feed from './component/Feed';
+import Feed from './components/Feed';
 
 const App = () => {
   return (
