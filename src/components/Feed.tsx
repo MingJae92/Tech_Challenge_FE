@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Card, CardContent, CardActions, Typography, Button } from '@mui/material';
+import Modal from './Modal'; // Import the Modal component
 
 interface FeedProps {
   // Define your props as needed
@@ -13,43 +14,52 @@ interface BrandData {
   // Add more properties as needed
 }
 
-interface FeedData {
+export interface FeedData {
   brand: BrandData;
   brandName: string;
   feedTitle: string;
-  banner_image: string; // Add the image property
-  // Add more properties as needed
+  banner_image: string;
+  starts_on: string;
+  banner_text: string;
+  ad_1_image: string;
+  ad_2_image: string;
 }
 
 const Feed: React.FC<FeedProps> = () => {
   const [feeds, setFeeds] = useState<FeedData[]>([]);
   const [visibleFeeds, setVisibleFeeds] = useState<number>(5);
+  const [selectedFeedIndex, setSelectedFeedIndex] = useState<number | null>(null); // Track selected feed index
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data from the server with the specified limit
+        // Fetch feeds with pagination from the updated server endpoint
         const response = await axios.get(`http://localhost:4000/api/feed?limit=${visibleFeeds}`);
-        console.log('Response data:', response.data);
-        // Update the state with the fetched data
         setFeeds(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    // Fetch data on initial render
     fetchData();
   }, [visibleFeeds]);
 
-  // Handle scrolling to load more feeds
   const handleScroll = () => {
     const container = containerRef.current;
+    // Check if the user has scrolled to the bottom
     if (container && container.scrollHeight - container.scrollTop === container.clientHeight) {
-      // Load the next 5 feeds when reaching the bottom
+      // Fetch the next set of feeds by increasing the limit
       setVisibleFeeds((prevVisibleFeeds) => prevVisibleFeeds + 5);
     }
+  };
+
+  const openModal = (index: number) => {
+    setSelectedFeedIndex(index);
+  };
+
+  const closeModal = () => {
+    setSelectedFeedIndex(null);
   };
 
   return (
@@ -59,7 +69,7 @@ const Feed: React.FC<FeedProps> = () => {
         flexDirection: 'column',
         alignItems: 'center',
         minHeight: '100vh',
-        overflowY: 'auto', // Enable scrolling when there are more feeds
+        overflowY: 'auto',
       }}
       ref={containerRef}
       onScroll={handleScroll}
@@ -67,9 +77,15 @@ const Feed: React.FC<FeedProps> = () => {
       {feeds.map((feed, index) => (
         <Card key={index} style={{ margin: '10px', width: '300px' }}>
           <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            {/* Add onClick handler to open the modal on image click */}
+            <img
+              src={feed.banner_image}
+              alt="Banner"
+              style={{ maxWidth: '100%', height: 'auto', marginTop: '10px', cursor: 'pointer' }}
+              onClick={() => openModal(index)}
+            />
             <Typography variant="h6">{feed.brand.name}</Typography>
             <Typography variant="subtitle1">{feed.brandName}</Typography>
-            <img src={feed.banner_image} alt="Banner" style={{ maxWidth: '100%', height: 'auto', marginTop: '10px' }} />
             <Typography variant="body2" style={{ alignSelf: 'flex-start', marginTop: '10px' }}>
               {feed.feedTitle}
             </Typography>
@@ -81,6 +97,14 @@ const Feed: React.FC<FeedProps> = () => {
           </CardActions>
         </Card>
       ))}
+      
+      {/* Render the modal component */}
+      {selectedFeedIndex !== null && (
+        <Modal
+          feed={feeds[selectedFeedIndex]}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 };
